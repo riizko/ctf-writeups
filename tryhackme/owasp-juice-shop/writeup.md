@@ -86,11 +86,11 @@
 
 
 
-**Problème** : un dossier du serveur était accessible publiquement sans y penser.
+**Problème** : un dossier du serveur était accessible publiquement.
 
 
 
-**Ce que j'ai fait** : en explorant une simple URL, je suis tombé sur une liste de fichiers.
+**Ce que j'ai fait** : en explorant un simple URL, je suis tombé sur une liste de fichiers.
 
 
 
@@ -146,7 +146,7 @@
 
 
 
-Résultat : une fenêtre d’alerte s’est déclenchée, preuve qu’un pirate pourrait exécuter du code arbitraire.
+Résultat : une fenêtre d’alerte s’est déclenchée, preuve qu’un pirate pourrait exécuter du code.
 
 
 
@@ -158,11 +158,5 @@ Résultat : une fenêtre d’alerte s’est déclenchée, preuve qu’un pirate 
 
 
 
-Ces tests m’ont permis de comprendre concrètement les failles les plus courantes du
-
-Top 10 OWASP et comment les développeurs doivent s’en protéger : validation côté
-
-serveur, limitation des tentatives de connexion, et échappement systématique des
-
-entrées utilisateur.
+Ces tests m’ont permis de comprendre concrètement quelques failles du Top 10 OWASP.
 
