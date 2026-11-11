@@ -42,7 +42,7 @@
 
 
 
-![Résultats Burp Intruder, code 200 trouvé](tryhackme/owasp-juice-shop/screenshots/03-brute-force-intruder.png)
+![Résultats Burp Intruder, code 200 trouvé](/tryhackme/owasp-juice-shop/screenshots/03-brute-force-intruder.png)
 
 
 
@@ -66,7 +66,7 @@
 
 
 
-![Recherche Google sur la famille du personnage](tryhackme/owasp-juice-shop/screenshots/04-star-trek-family.png)
+![Recherche Google sur la famille du personnage](/tryhackme/owasp-juice-shop/screenshots/04-star-trek-family.png)
 
 
 
@@ -74,7 +74,7 @@
 
 
 
-![Formulaire de réinitialisation rempli](tryhackme/owasp-juice-shop/screenshots/05-forgot-password.png)
+![Formulaire de réinitialisation rempli](/tryhackme/owasp-juice-shop/screenshots/05-forgot-password.png)
 
 
 
@@ -94,7 +94,7 @@
 
 
 
-![Listing du dossier /ftp/](tryhackme/owasp-juice-shop/screenshots/06-ftp-listing.png)
+![Listing du dossier /ftp/](/tryhackme/owasp-juice-shop/screenshots/06-ftp-listing.png)
 
 
 
@@ -102,7 +102,7 @@
 
 
 
-![Contenu du document confidentiel](tryhackme/owasp-juice-shop/screenshots/07-acquisitions-confidential.png)
+![Contenu du document confidentiel](/tryhackme/owasp-juice-shop/screenshots/07-acquisitions-confidential.png)
 
 
 
@@ -122,7 +122,7 @@
 
 
 
-![Requête Burp modifiée](tryhackme/owasp-juice-shop/screenshots/08-idor-basket.png)
+![Requête Burp modifiée](/tryhackme/owasp-juice-shop/screenshots/08-idor-basket.png)
 
 
 
@@ -150,7 +150,7 @@ Résultat : une fenêtre d’alerte s’est déclenchée, preuve qu’un pirate 
 
 
 
-![Pop-up XSS](tryhackme/owasp-juice-shop/screenshots/09-popup-xss.png)
+![Pop-up XSS](/tryhackme/owasp-juice-shop/screenshots/09-popup-xss.png)
 
 
 
