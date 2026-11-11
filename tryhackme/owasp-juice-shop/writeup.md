@@ -1,196 +1,148 @@
-\# OWASP Juice Shop — Write-up (TryHackMe)
+## 1. Contourner une connexion sans mot de passe (SQL Injection)
 
 
 
-\## Contexte
+**Problème** : le formulaire de connexion fait confiance à ce que l'utilisateur tape, sans le vérifier.
 
 
 
-Le serveur cible héberge \*\*OWASP Juice Shop\*\*, une application web volontairement
+**Ce que j'ai fait** : j'ai intercepté la requête de connexion avec Burp Suite et remplacé l'email par `' or 1=1--` :
 
-truffée de failles de sécurité, utilisée pour s'entraîner à repérer et exploiter
 
-de vraies vulnérabilités web, sans risque.
 
+![Requête interceptée avec le payload SQL](/screenshots/01-sql-injection.png)
 
 
-\### Vulnérabilités traitées dans ce write-up
 
+**Résultat** : connecté instantanément en tant qu'administrateur, sans connaître le mot de passe.
 
 
-\- \*\*SQL Injection\*\* — contournement d'authentification
 
-\- \*\*Broken Authentication\*\* — brute force et réinitialisation de mot de passe
+![Connexion réussie sur le compte admin](/screenshots/02-admin-login-success.png)
 
-\- \*\*Sensitive Data Exposure\*\* — accès à un dossier confidentiel
 
-\- \*\*Broken Access Control\*\* — accès admin et IDOR
 
-\- \*\*Cross-Site Scripting (XSS)\*\* — DOM, persistant et réfléchi
+**Pourquoi ça marche** : le `'` referme la requête SQL plus tôt que prévu, `OR 1=1` ajoute une condition toujours vraie, et `--` commente la fin de la requête (dont la vérification du mot de passe).
 
 
 
-\### Outils utilisés
+---
 
 
 
-\- \*\*Burp Suite\*\* — interception et modification des requêtes HTTP (Proxy, Intruder)
+## 2. Deviner un mot de passe automatiquement (Broken Authentication)
 
-\- \*\*Browser DevTools\*\* — inspection du code client (Chromium)
 
-\- \*\*SecLists\*\* — dictionnaire de mots de passe (`best1050.txt`) pour le brute force
 
+**Problème** : aucune limite sur le nombre d'essais de connexion.
 
 
-\---
 
+**Ce que j'ai fait** : j'ai testé automatiquement 1000 mots de passe courants avec Burp Intruder sur le compte admin.
 
 
-\## 1. Contourner une connexion sans mot de passe (SQL Injection)
 
+![Résultats Burp Intruder, code 200 trouvé](/screenshots/03-brute-force-intruder.png)
 
 
-\*\*Problème\*\* : le formulaire de connexion fait confiance à ce que l'utilisateur tape, sans le vérifier.
 
+**Résultat** : le mot de passe `admin123` trouvé en quelques minutes.
 
 
-\*\*Ce que j'ai fait\*\* : j'ai intercepté la requête de connexion avec Burp Suite et remplacé l'email par `' or 1=1--` :
 
+---
 
 
-!\[Requête interceptée avec le payload SQL](./screenshots/01-sql-injection.png)
 
+## 3. Réinitialiser le mot de passe de quelqu'un via une recherche Google (Broken Authentication)
 
 
-\*\*Résultat\*\* : connecté instantanément en tant qu'administrateur, sans connaître le mot de passe.
 
+**Problème** : la question de sécurité est devinable avec une simple recherche.
 
 
-!\[Connexion réussie sur le compte admin](./screenshots/02-admin-login-success.png)
 
+**Ce que j'ai fait** : un avis client m'a mené à un personnage de Star Trek, j'ai trouvé le nom de son frère sur Google.
 
 
-\*\*Pourquoi ça marche\*\* : le `'` referme la requête SQL plus tôt que prévu, `OR 1=1` ajoute une condition toujours vraie, et `--` commente la fin de la requête (dont la vérification du mot de passe).
 
+![Recherche Google sur la famille du personnage](/screenshots/04-star-trek-family.png)
 
 
-\---
 
+**Résultat** : mot de passe changé sans jamais connaître l'original.
 
 
-\## 2. Deviner un mot de passe automatiquement (Broken Authentication)
 
+![Formulaire de réinitialisation rempli](/screenshots/05-forgot-password.png)
 
 
-\*\*Problème\*\* : aucune limite sur le nombre d'essais de connexion.
 
+---
 
 
-\*\*Ce que j'ai fait\*\* : j'ai testé automatiquement 1000 mots de passe courants avec Burp Intruder sur le compte admin.
 
+## 4. Trouver un document confidentiel caché (Sensitive Data Exposure)
 
 
-!\[Résultats Burp Intruder, code 200 trouvé](./screenshots/03-brute-force-intruder.png)
 
+**Problème** : un dossier du serveur était accessible publiquement sans y penser.
 
 
-\*\*Résultat\*\* : le mot de passe `admin123` trouvé en quelques minutes.
 
+**Ce que j'ai fait** : en explorant une simple URL, je suis tombé sur une liste de fichiers.
 
 
-\---
 
+![Listing du dossier /ftp/](/screenshots/06-ftp-listing.png)
 
 
-\## 3. Réinitialiser le mot de passe de quelqu'un via une recherche Google (Broken Authentication)
 
+**Résultat** : accès à un document interne marqué confidentiel.
 
 
-\*\*Problème\*\* : la question de sécurité est devinable avec une simple recherche.
 
+![Contenu du document confidentiel](/screenshots/07-acquisitions-confidential.png)
 
 
-\*\*Ce que j'ai fait\*\* : un avis client m'a mené à un personnage de Star Trek, j'ai trouvé le nom de son frère sur Google.
 
+---
 
 
-!\[Recherche Google sur la famille du personnage](./screenshots/04-star-trek-family.png)
 
+## 5. Accéder au panier d'un autre client (Broken Access Control — IDOR)
 
 
-\*\*Résultat\*\* : mot de passe changé sans jamais connaître l'original.
 
+**Problème** : le site ne vérifie pas que le panier demandé appartient bien à la personne connectée.
 
 
-!\[Formulaire de réinitialisation rempli](./screenshots/05-forgot-password.png)
 
+**Ce que j'ai fait** : changé un simple chiffre dans l'URL de la requête (`basket/1` → `basket/2`).
 
 
-\---
 
+![Requête Burp modifiée](/screenshots/08-idor-basket.png)
 
 
-\## 4. Trouver un document confidentiel caché (Sensitive Data Exposure)
 
+**Résultat** : accès au panier d'un autre utilisateur.
 
 
-\*\*Problème\*\* : un dossier du serveur était accessible publiquement sans y penser.
 
+---
 
 
-\*\*Ce que j'ai fait\*\* : en explorant une simple URL, je suis tombé sur une liste de fichiers.
 
+## 6. Faire exécuter du code dans le navigateur (XSS)
 
 
-!\[Listing du dossier /ftp/](./screenshots/06-ftp-listing.png)
 
+**Problème** : le site réaffiche ce qu'on tape sans le filtrer.
 
 
-\*\*Résultat\*\* : accès à un document interne marqué confidentiel.
 
-
-
-!\[Contenu du document confidentiel](./screenshots/07-acquisitions-confidential.png)
-
-
-
-\---
-
-
-
-\## 5. Accéder au panier d'un autre client (Broken Access Control — IDOR)
-
-
-
-\*\*Problème\*\* : le site ne vérifie pas que le panier demandé appartient bien à la personne connectée.
-
-
-
-\*\*Ce que j'ai fait\*\* : changé un simple chiffre dans l'URL de la requête (`basket/1` → `basket/2`).
-
-
-
-!\[Requête Burp modifiée](./screenshots/08-idor-basket.png)
-
-
-
-\*\*Résultat\*\* : accès au panier d'un autre utilisateur.
-
-
-
-\---
-
-
-
-\## 6. Faire exécuter du code dans le navigateur (XSS)
-
-
-
-\*\*Problème\*\* : le site réaffiche ce qu'on tape sans le filtrer.
-
-
-
-\*\*Ce que j'ai fait\*\* : tapé un petit bout de code dans la barre de recherche : <iframe src="javascript:alert('test injection xss')"> ```
+**Ce que j'ai fait** : tapé un petit bout de code dans la barre de recherche : <iframe src="javascript:alert('test injection xss')"> ```
 
 
 
@@ -198,11 +150,11 @@ Résultat : une fenêtre d’alerte s’est déclenchée, preuve qu’un pirate 
 
 
 
-Popup d'alerte XSS
+![Pop-up XSS](/screenshots/09-popup-xss.png)
 
 
 
-\# Conclusion
+# Conclusion
 
 
 
